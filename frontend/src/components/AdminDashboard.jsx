@@ -26,7 +26,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   flexDirection: 'column',
   transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
   '&:hover': {
-    transform: 'translateY(-5px)',
+    transform: 'translateY(-5px) scale(1.01)',
     boxShadow: theme.shadows[8],
   },
 }));

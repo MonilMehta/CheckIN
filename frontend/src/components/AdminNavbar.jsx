@@ -32,7 +32,15 @@ const ResponsiveAppBarAdmin = () => {
             color="inherit"
             onClick={() => navigate('/AdminDashboard')}
             startIcon={<Home sx={{ fontSize: 28 }} />}
-            sx={{ fontSize: 18, fontWeight: 'bold', textTransform: 'none' }}
+            sx={{
+              fontSize: 18,
+              fontWeight: 'bold',
+              textTransform: 'none',
+              '&:hover': {
+                color: 'primary.main',
+                bgcolor: 'grey.100',
+              },
+            }}
           >
             Home
           </Button>
@@ -41,7 +49,15 @@ const ResponsiveAppBarAdmin = () => {
             color="inherit"
             onClick={() => navigate('/rooms')}
             startIcon={<Hotel sx={{ fontSize: 28 }} />}
-            sx={{ fontSize: 18, fontWeight: 'bold', textTransform: 'none' }}
+            sx={{
+              fontSize: 18,
+              fontWeight: 'bold',
+              textTransform: 'none',
+              '&:hover': {
+                color: 'primary.main',
+                bgcolor: 'grey.100',
+              },
+            }}
           >
             Rooms
           </Button>
@@ -50,7 +66,15 @@ const ResponsiveAppBarAdmin = () => {
             color="inherit"
             onClick={() => navigate('/add-room')}
             startIcon={<AddBox sx={{ fontSize: 28 }} />}
-            sx={{ fontSize: 18, fontWeight: 'bold', textTransform: 'none' }}
+            sx={{
+              fontSize: 18,
+              fontWeight: 'bold',
+              textTransform: 'none',
+              '&:hover': {
+                color: 'primary.main',
+                bgcolor: 'grey.100',
+              },
+            }}
           >
             Add Room
           </Button>
@@ -59,7 +83,15 @@ const ResponsiveAppBarAdmin = () => {
             color="inherit"
             onClick={() => navigate('/dashboardstats')}
             startIcon={<Dashboard sx={{ fontSize: 28 }} />}
-            sx={{ fontSize: 18, fontWeight: 'bold', textTransform: 'none' }}
+            sx={{
+              fontSize: 18,
+              fontWeight: 'bold',
+              textTransform: 'none',
+              '&:hover': {
+                color: 'primary.main',
+                bgcolor: 'grey.100',
+              },
+            }}
           >
             Dashboard Stats
           </Button>
@@ -68,7 +100,15 @@ const ResponsiveAppBarAdmin = () => {
             color="inherit"
             onClick={() => navigate('/employees')}
             startIcon={<People sx={{ fontSize: 28 }} />}
-            sx={{ fontSize: 18, fontWeight: 'bold', textTransform: 'none' }}
+            sx={{
+              fontSize: 18,
+              fontWeight: 'bold',
+              textTransform: 'none',
+              '&:hover': {
+                color: 'primary.main',
+                bgcolor: 'grey.100',
+              },
+            }}
           >
             Employees
           </Button>
@@ -78,7 +118,15 @@ const ResponsiveAppBarAdmin = () => {
             color="inherit"
             onClick={handleLogOut}
             startIcon={<ExitToApp sx={{ fontSize: 28 }} />}
-            sx={{ fontSize: 18, fontWeight: 'bold', textTransform: 'none' }}
+            sx={{
+              fontSize: 18,
+              fontWeight: 'bold',
+              textTransform: 'none',
+              '&:hover': {
+                color: 'primary.main',
+                bgcolor: 'grey.100',
+              },
+            }}
           >
             Log Out
           </Button>

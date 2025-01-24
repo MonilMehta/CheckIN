@@ -1,3 +1,11 @@
+import os
+import tensorflow as tf
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+
 import cv2
 import numpy as np
 from keras.applications.xception import Xception
@@ -68,3 +76,4 @@ def detect_objects_and_count(image_file):
         print(f"{obj}: {count}")
 
     return counter
+

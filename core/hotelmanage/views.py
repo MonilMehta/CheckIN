@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from .serializers import RoomStatusCreateSerializer, RoomStatusSerializer, EmployeePerformanceSerializer
+from .models import EmployeePerformance
 from .aimodels import predict_single_image, detect_objects_and_count
 from .models import RoomStatus, RoomCleanLog
 from authentication.models import User
@@ -14,6 +15,12 @@ from .models import RoomStatus, RoomCleanLog
 from .serializers import RoomStatusSerializer, RoomCleanLogSerializer
 from .aimodels import predict_single_image, detect_objects_and_count
 from rest_framework import status
+import plotly.graph_objs as go
+from django.db import models
+from django.db.models import Q
+from django.db.models.functions import TruncDate
+from django.utils import timezone
+from datetime import timedelta
 
 
 @api_view(['POST'])
@@ -140,34 +147,63 @@ def updateroom(request, room_number):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class DashboardStatsView(APIView):
-    def get(self, request):
-        rooms = RoomStatus.objects.all()
-        clean_rooms = rooms.filter(status='clean').count()
-        maintenance_rooms = rooms.filter(status='maintenance').count()
-        
-        employees = User.objects.filter(employee_type='staff')
-        employee_stats = []
-        for employee in employees:
-            clean_logs = RoomCleanLog.objects.filter(employee=employee)
-            cleaned_rooms = clean_logs.count()
-            success_cleaning = clean_logs.filter(success=True).count()
-            accuracy = (success_cleaning / cleaned_rooms) * 100 if cleaned_rooms > 0 else 0
-            employee_stats.append({
-                'employee': employee.username,
-                'cleaned_rooms': cleaned_rooms,
-                'accuracy': accuracy
-            })
+    permission_classes = [IsAuthenticated]
 
-        data = {
-            'room_data': {
-                'total_rooms': rooms.count(),
-                'clean': clean_rooms,
-                'maintenance': maintenance_rooms
-            },
-            'employee_stats': employee_stats
+    def get(self, request):
+        # Room statistics
+        rooms = RoomStatus.objects.all()
+        room_stats = {
+            'total_rooms': rooms.count(),
+            'clean': rooms.filter(status='clean').count(),
+            'maintenance': rooms.filter(status='maintenance').count(),
+            'cleaning_needed': rooms.filter(
+                models.Q(bottle__gt=2) | 
+                models.Q(cup__gt=4) | 
+                models.Q(wine_glass__gt=2) | 
+                models.Q(bowl__gt=4)
+            ).count()
         }
 
-        return Response(data, status=status.HTTP_200_OK)
+        # Employee statistics
+        employees = User.objects.filter(employee_type='staff')
+        employee_stats = []
+        
+        for employee in employees:
+            performance = EmployeePerformance.objects.get_or_create(employee=employee)[0]
+            performance.update_stats()
+            
+            recent_logs = RoomCleanLog.objects.filter(
+                employee=employee,
+                clean_date__gte=timezone.now() - timezone.timedelta(days=30)
+            )
+            
+            employee_stats.append({
+                'employee_id': employee.id,
+                'employee_name': employee.get_full_name(),
+                'total_rooms_cleaned': performance.total_rooms_cleaned,
+                'successful_cleanings': performance.successful_cleanings,
+                'success_rate': (performance.successful_cleanings / performance.total_rooms_cleaned * 100) if performance.total_rooms_cleaned > 0 else 0,
+                'average_duration': performance.average_duration,
+                'average_quality_score': performance.average_quality_score,
+                'monthly_rating': performance.monthly_rating,
+                'recent_activity': {
+                    'rooms_cleaned_this_month': recent_logs.count(),
+                    'average_daily_rooms': recent_logs.count() / 30,
+                }
+            })
+
+        return Response({
+            'room_stats': room_stats,
+            'employee_stats': employee_stats,
+            'inventory_stats': {
+                'total_inventory_issues': rooms.filter(
+                    models.Q(bottle__gt=2) | 
+                    models.Q(cup__gt=4) | 
+                    models.Q(wine_glass__gt=2) | 
+                    models.Q(bowl__gt=4)
+                ).count()
+            }
+        }, status=status.HTTP_200_OK)
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # This enforces authentication
@@ -205,3 +241,119 @@ def roomdata(request, pk):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except RoomStatus.DoesNotExist:
         return Response({"error": "RoomStatus does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+class EmployeePerformanceGraphs(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, employee_id):
+        logs = RoomCleanLog.objects.filter(
+            employee_id=employee_id,
+            clean_date__gte=timezone.now() - timedelta(days=30)
+        )
+        daily_stats = logs.annotate(date=TruncDate('clean_date')).values('date').annotate(
+            count=models.Count('id'),
+            success_rate=models.Count('id', filter=Q(success=True)) * 100.0 / models.Count('id')
+        ).order_by('date')
+        
+        fig1 = go.Figure()
+        fig1.add_trace(go.Scatter(
+            x=[x['date'] for x in daily_stats],
+            y=[x['count'] for x in daily_stats],
+            name='Rooms Cleaned'
+        ))
+        fig1.update_layout(title='Daily Rooms Cleaned')
+
+        fig2 = go.Figure()
+        fig2.add_trace(go.Scatter(
+            x=[x['date'] for x in daily_stats],
+            y=[x['success_rate'] for x in daily_stats],
+            name='Success Rate'
+        ))
+        fig2.update_layout(title='Daily Success Rate (%)')
+
+        return Response({
+            'rooms_cleaned_graph': fig1.to_json(),
+            'success_rate_graph': fig2.to_json()
+        }, status=status.HTTP_200_OK)
+
+class AdminDashboardView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get(self, request):
+        # Summary of user types/staff
+        total_users = User.objects.count()
+        total_staff = User.objects.filter(employee_type='staff').count()
+        total_admins = User.objects.filter(employee_type='admin').count()
+
+        # Summary of rooms
+        total_rooms = RoomStatus.objects.count()
+        maintenance_rooms = RoomStatus.objects.filter(status='maintenance').count()
+
+        # Summary of logs
+        total_logs = RoomCleanLog.objects.count()
+
+        return Response({
+            'users_summary': {
+                'total_users': total_users,
+                'total_staff': total_staff,
+                'total_admins': total_admins
+            },
+            'rooms_summary': {
+                'total_rooms': total_rooms,
+                'maintenance_rooms': maintenance_rooms
+            },
+            'logs_summary': {
+                'total_logs': total_logs
+            }
+        }, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def archive_old_logs(request):
+    days_threshold = int(request.data.get('days', 90))
+    cutoff_date = timezone.now() - timedelta(days=days_threshold)
+    old_logs = RoomCleanLog.objects.filter(clean_date__lt=cutoff_date)
+    count_deleted = old_logs.delete()
+
+    return Response({
+        'message': f"{count_deleted[0]} old logs archived successfully."
+    }, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def employee_performance_stats(request):
+    performances = EmployeePerformance.objects.all()
+    serializer = EmployeePerformanceSerializer(performances, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def employee_performance_detail(request, employee_id):
+    try:
+        performance = EmployeePerformance.objects.get(employee_id=employee_id)
+        serializer = EmployeePerformanceSerializer(performance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except EmployeePerformance.DoesNotExist:
+        return Response({"error": "EmployeePerformance does not exist"}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def update_employee_performance(request, employee_id):
+    try:
+        performance = EmployeePerformance.objects.get(employee_id=employee_id)
+    except EmployeePerformance.DoesNotExist:
+        return Response({"error": "EmployeePerformance does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = EmployeePerformanceSerializer(performance, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_rooms(request):
+    rooms = RoomStatus.objects.all()
+    serializer = RoomStatusSerializer(rooms, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

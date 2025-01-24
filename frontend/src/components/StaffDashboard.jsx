@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Typography, Button, Container, Box, Grid } from '@mui/material';
+import { Typography, Button, Container, Box, Grid, Fade } from '@mui/material';
 import ResponsiveAppBarStaff from './StaffNavbar';
 import Modal from 'react-modal';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -104,169 +104,171 @@ const StaffDashboard = () => {
   };
 
   return (
-    <div>
-      <ResponsiveAppBarStaff />
-      <Container component="main" maxWidth="xs">
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Typography variant="h3" color="textPrimary" gutterBottom>
-            Staff Dashboard
-          </Typography>
-          <Typography variant="body1" color="textSecondary">
-            Room Number: {roomNumber}
-          </Typography>
-
-          {/* Cleanliness Check */}
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={6}>
-              <Typography variant="body1" color="textSecondary">
-                Cleanliness Check
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Button
-                component="label"
-                role={undefined}
-                variant="contained"
-                tabIndex={-1}
-                startIcon={<CloudUploadIcon />}
-              >
-                Upload File
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChangeCleanliness}
-                  style={{ display: 'none' }}
-                />
-              </Button>
-            </Grid>
-          </Grid>
-
-          {filesCleanliness.map((file, index) => (
-            <div
-              key={index}
-              style={{
-                width: '80%',
-                height: 'auto',
-                marginTop: '20px',
-                overflow: 'hidden',
-                position: 'relative',
-              }}
-            >
-              {file.type && file.type.startsWith('image/') && (
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt={`Selected Image ${index + 1}`}
-                  style={{ width: '100%', height: 'auto', marginBottom: '5px' }}
-                  onClick={() => openModal(index)}
-                />
-              )}
-              <Button
-                variant="outlined"
-                color="secondary"
-                size="small"
-                onClick={() => handleRemoveImageCleanliness(index)}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  padding: '2px',
-                  borderRadius: '50%',
-                }}
-              >
-                &#10005;
-              </Button>
-            </div>
-          ))}
-
-          {/* Inventory Check */}
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={6}>
-              <Typography variant="body1" color="textSecondary">
-                Inventory Check
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Button
-                component="label"
-                role={undefined}
-                variant="contained"
-                tabIndex={-1}
-                startIcon={<CloudUploadIcon />}
-              >
-                Upload File
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChangeInventory}
-                  style={{ display: 'none' }}
-                />
-              </Button>
-            </Grid>
-          </Grid>
-
-          {filesInventory.map((file, index) => (
-            <div
-              key={index}
-              style={{
-                width: '80%',
-                height: 'auto',
-                marginTop: '10px',
-                overflow: 'hidden',
-                position: 'relative',
-              }}
-            >
-              {file.type && file.type.startsWith('image/') && (
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt={`Selected Image ${index + 1}`}
-                  style={{ width: '100%', height: 'auto', marginBottom: '5px' }}
-                  onClick={() => openModal(index)}
-                />
-              )}
-              <Button
-                variant="outlined"
-                color="secondary"
-                size="small"
-                onClick={() => handleRemoveImageInventory(index)}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  padding: '2px',
-                  borderRadius: '50%',
-                  marginTop:'40px'
-                }}
-              >
-                &#10005;
-              </Button>
-            </div>
-          ))}
-
-          {/* Submit Button */}
-          <Button
-            variant="contained"
-            color="primary"
-            endIcon={<SendIcon />}
-            onClick={handleSubmit}
+    <Fade in timeout={800}>
+      <div>
+        <ResponsiveAppBarStaff />
+        <Container component="main" maxWidth="xs">
+          <Box
             sx={{
-              mt: 3,
-              color: 'white',
-              '&:hover': { backgroundColor: '#1976D2' },
+              marginTop: 8,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
             }}
           >
-            Submit
-          </Button>
-        </Box>
-      </Container>
-      <Footer />
-    </div>
+            <Typography variant="h3" color="textPrimary" gutterBottom>
+              Staff Dashboard
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              Room Number: {roomNumber}
+            </Typography>
+
+            {/* Cleanliness Check */}
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={6}>
+                <Typography variant="body1" color="textSecondary">
+                  Cleanliness Check
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  component="label"
+                  role={undefined}
+                  variant="contained"
+                  tabIndex={-1}
+                  startIcon={<CloudUploadIcon />}
+                >
+                  Upload File
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleFileChangeCleanliness}
+                    style={{ display: 'none' }}
+                  />
+                </Button>
+              </Grid>
+            </Grid>
+
+            {filesCleanliness.map((file, index) => (
+              <div
+                key={index}
+                style={{
+                  width: '80%',
+                  height: 'auto',
+                  marginTop: '20px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                {file.type && file.type.startsWith('image/') && (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={`Selected Image ${index + 1}`}
+                    style={{ width: '100%', height: 'auto', marginBottom: '5px' }}
+                    onClick={() => openModal(index)}
+                  />
+                )}
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  size="small"
+                  onClick={() => handleRemoveImageCleanliness(index)}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    padding: '2px',
+                    borderRadius: '50%',
+                  }}
+                >
+                  &#10005;
+                </Button>
+              </div>
+            ))}
+
+            {/* Inventory Check */}
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={6}>
+                <Typography variant="body1" color="textSecondary">
+                  Inventory Check
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  component="label"
+                  role={undefined}
+                  variant="contained"
+                  tabIndex={-1}
+                  startIcon={<CloudUploadIcon />}
+                >
+                  Upload File
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleFileChangeInventory}
+                    style={{ display: 'none' }}
+                  />
+                </Button>
+              </Grid>
+            </Grid>
+
+            {filesInventory.map((file, index) => (
+              <div
+                key={index}
+                style={{
+                  width: '80%',
+                  height: 'auto',
+                  marginTop: '10px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                {file.type && file.type.startsWith('image/') && (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={`Selected Image ${index + 1}`}
+                    style={{ width: '100%', height: 'auto', marginBottom: '5px' }}
+                    onClick={() => openModal(index)}
+                  />
+                )}
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  size="small"
+                  onClick={() => handleRemoveImageInventory(index)}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    padding: '2px',
+                    borderRadius: '50%',
+                    marginTop:'40px'
+                  }}
+                >
+                  &#10005;
+                </Button>
+              </div>
+            ))}
+
+            {/* Submit Button */}
+            <Button
+              variant="contained"
+              color="primary"
+              endIcon={<SendIcon />}
+              onClick={handleSubmit}
+              sx={{
+                mt: 3,
+                color: 'white',
+                '&:hover': { backgroundColor: '#1976D2' },
+              }}
+            >
+              Submit
+            </Button>
+          </Box>
+        </Container>
+        <Footer />
+      </div>
+    </Fade>
   );
 };
 

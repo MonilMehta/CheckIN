@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework import routers
 from .views import RoomStatusViewSet
 from .views import createroom, inventory_check, roomdata, DashboardStatsView, updateroom
-from .views import submit_cleaning_report, room_cleaning_history
+from .views import submit_cleaning_report, room_cleaning_history, get_all_rooms,employee_performance_detail, EmployeePerformanceGraphs
 
 # Initialize the router and register the RoomStatusViewSet
 router = routers.DefaultRouter()
@@ -18,5 +18,8 @@ urlpatterns = [
     path('admin/dashboard-stats/', DashboardStatsView.as_view(), name='admin-dashboard-stats'),  
     path('submit-cleaning-report/', submit_cleaning_report, name='submit-cleaning-report'),
     path('room-cleaning-history/<str:room_number>/', room_cleaning_history, name='room-cleaning-history'),
+    path('get-all-rooms/', get_all_rooms, name='get-all-rooms'),
+    path('employeeperformancegraphs/<int:employee_id>/', EmployeePerformanceGraphs.as_view(), name='employeeperformancegraphs'),
+    path('dashboardstats/', DashboardStatsView.as_view(), name='api-dashboardstats'),
 ]
 

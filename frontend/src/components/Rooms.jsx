@@ -65,6 +65,13 @@ const Rooms = () => {
     occupied: 0,
   });
 
+  const cardStyle = {
+    transition: 'transform 0.3s',
+    '&:hover': {
+      transform: 'scale(1.03)',
+    },
+  };
+
   useEffect(() => {
     fetchRooms();
   }, []);
@@ -208,44 +215,46 @@ const Rooms = () => {
         <Grid container spacing={3}>
           {rooms.map((room) => (
             <Grid item xs={12} sm={6} md={4} key={room.room_number}>
-              <StyledCard>
-                <CardContent>
-                  <Typography variant="h5" component="div">
-                    Room {room.room_number}
-                  </Typography>
-                  <RoomChip 
-                    label={room.status.toUpperCase()} 
-                    status={room.status}
-                  />
-                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    Last checked: {new Date(room.last_checked).toLocaleString()}
-                  </Typography>
-                  <Typography variant="body2">
-                    Cleaned by: {room.employee || 'Not assigned'}
-                  </Typography>
-                  <Box mt={2} display="flex" justifyContent="space-between">
-                    <Box display="flex" alignItems="center">
-                      <BottleIcon fontSize="small" />
-                      <Typography variant="body2" ml={1}>{room.bottle}</Typography>
+              <div style={cardStyle}>
+                <StyledCard>
+                  <CardContent>
+                    <Typography variant="h5" component="div">
+                      Room {room.room_number}
+                    </Typography>
+                    <RoomChip 
+                      label={room.status.toUpperCase()} 
+                      status={room.status}
+                    />
+                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                      Last checked: {new Date(room.last_checked).toLocaleString()}
+                    </Typography>
+                    <Typography variant="body2">
+                      Cleaned by: {room.employee || 'Not assigned'}
+                    </Typography>
+                    <Box mt={2} display="flex" justifyContent="space-between">
+                      <Box display="flex" alignItems="center">
+                        <BottleIcon fontSize="small" />
+                        <Typography variant="body2" ml={1}>{room.bottle}</Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center">
+                        <CupIcon fontSize="small" />
+                        <Typography variant="body2" ml={1}>{room.cup}</Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center">
+                        <WineBarIcon fontSize="small" />
+                        <Typography variant="body2" ml={1}>{room.wine_glass}</Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center">
+                        <BowlIcon fontSize="small" />
+                        <Typography variant="body2" ml={1}>{room.bowl}</Typography>
+                      </Box>
                     </Box>
-                    <Box display="flex" alignItems="center">
-                      <CupIcon fontSize="small" />
-                      <Typography variant="body2" ml={1}>{room.cup}</Typography>
-                    </Box>
-                    <Box display="flex" alignItems="center">
-                      <WineBarIcon fontSize="small" />
-                      <Typography variant="body2" ml={1}>{room.wine_glass}</Typography>
-                    </Box>
-                    <Box display="flex" alignItems="center">
-                      <BowlIcon fontSize="small" />
-                      <Typography variant="body2" ml={1}>{room.bowl}</Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-                <CardActions>
-                  <Button size="small" onClick={() => handleRoomClick(room)}>View Details</Button>
-                </CardActions>
-              </StyledCard>
+                  </CardContent>
+                  <CardActions>
+                    <Button size="small" onClick={() => handleRoomClick(room)}>View Details</Button>
+                  </CardActions>
+                </StyledCard>
+              </div>
             </Grid>
           ))}
         </Grid>

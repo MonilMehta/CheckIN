@@ -83,7 +83,7 @@
 //   const maintenanceTips = getMaintenanceTips();
 
 //   return (
-//     <Paper elevation={3} sx={{ p: 3, maxWidth: 800, margin: 'auto' }}>
+//     <Paper elevation={4} sx={{ p: 3, borderRadius: 2 }}>
 //       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
 //         <Typography variant="h4" component="h1">
 //           Room {room.room_number} Report

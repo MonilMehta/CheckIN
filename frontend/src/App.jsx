@@ -2,9 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './AuthContext'; // Import AuthProvider from your AuthContext file
 import './App.css';
-import Home from './components/Home.jsx';
-import SignIn from './components/SignIn.jsx';
-import SignUp from './components/Signup.jsx';
+import Home from './components/Homepage/Home.jsx';
+import SignIn from './components/Auth/SignIn.jsx';
+import SignUp from './components/Auth/Signup.jsx';
 import AdminDashboard from './components/AdminDashboard.jsx';
 import StaffDashboard from './components/StaffDashboard.jsx';
 import StaffMain from './components/StaffMain.jsx';

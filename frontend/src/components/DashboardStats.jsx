@@ -189,7 +189,7 @@ const DashboardStats = () => {
 
         {/* Room Status Details */}
         <Typography variant="h5" sx={{ mt: 4, mb: 2 }}>Room Status Details</Typography>
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ mt: 3, p: 2 }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -215,7 +215,9 @@ const DashboardStats = () => {
         </TableContainer>
 
         {/* Employee Performance Details */}
-        <Typography variant="h5" sx={{ mt: 4, mb: 2 }}>Employee Performance Details</Typography>
+        <Typography variant="h5" sx={{ mt: 3, mb: 1, fontWeight: 'bold' }}>
+          Employee Performance Details
+        </Typography>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
