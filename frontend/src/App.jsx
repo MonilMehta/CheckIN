@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './AuthContext'; // Import AuthProvider from your AuthContext file
 import './App.css';
 import Home from './components/Homepage/Home.jsx';
@@ -18,7 +18,7 @@ function App() {
   return (
     <div className="App">
       <AuthProvider> 
-        <Router>
+        <BrowserRouter>
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/StaffMain' element={<StaffMain />} />
@@ -34,7 +34,7 @@ function App() {
             <Route path='/dashboardstats' element={<DashboardStats />} />
             <Route path='*' element={<Home />} />
           </Routes>
-        </Router>
+        </BrowserRouter>
       </AuthProvider>
     </div>
   );

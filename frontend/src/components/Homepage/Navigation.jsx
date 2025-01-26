@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Link from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "../ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet"
 import { Menu, LogIn, UserPlus } from "lucide-react"
@@ -15,13 +15,17 @@ const navItems = [
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
+  const navigate = useNavigate()
+
+  const handleLogin = () => navigate('/signin')
+  const handleSignup = () => navigate('/signup')
 
   return (
     <nav className="fixed w-full z-50 bg-black bg-opacity-90 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-white text-2xl font-bold">
+            <Link to="/" className="text-white text-2xl font-bold">
               CheckIn
             </Link>
           </div>
@@ -30,17 +34,26 @@ export default function Navigation() {
               {navItems.map((item) => (
                 <Link
                   key={item.name}
-                  href={item.href}
+                  to={item.href}
                   className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                 >
                   {item.name}
                 </Link>
               ))}
               <div className="flex items-center space-x-2 ml-4">
-                <Button variant="outline" size="sm" className="text-white hover:bg-gray-700">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-white hover:bg-gray-700"
+                  onClick={handleLogin}
+                >
                   <LogIn className="mr-2 h-4 w-4" /> Log In
                 </Button>
-                <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                <Button 
+                  size="sm" 
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={handleSignup}
+                >
                   <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                 </Button>
               </div>
@@ -61,7 +74,7 @@ export default function Navigation() {
                   {navItems.map((item) => (
                     <Link
                       key={item.name}
-                      href={item.href}
+                      to={item.href}
                       className="block px-2 py-2 text-lg hover:bg-gray-100 rounded"
                       onClick={() => setIsOpen(false)}
                     >
@@ -69,10 +82,10 @@ export default function Navigation() {
                     </Link>
                   ))}
                   <div className="flex flex-col space-y-2 mt-4">
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full" onClick={handleLogin}>
                       <LogIn className="mr-2 h-4 w-4" /> Log In
                     </Button>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={handleSignup}>
                       <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                     </Button>
                   </div>

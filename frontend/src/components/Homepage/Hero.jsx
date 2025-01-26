@@ -3,9 +3,10 @@
 import { motion } from "framer-motion"
 import { Button } from "../ui/button"
 import { Sparkles } from "lucide-react"
-
+import { useNavigate } from "react-router-dom"  // Added import
 
 export default function Hero() {
+  const navigate = useNavigate()  // Added useNavigate
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
@@ -47,6 +48,7 @@ export default function Hero() {
           <Button 
             size="lg" 
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center mx-auto"
+            onClick={() => navigate('/signup')}  // Added onClick handler
           >
             <Sparkles className="mr-2 h-5 w-5" /> Get Started
           </Button>
