@@ -23,7 +23,7 @@ import {
 export default function SignIn() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: '',
     role: ''
   });
@@ -55,9 +55,9 @@ export default function SignIn() {
       
       // Navigate based on role
       if (formData.role === 'ADMIN') {
-        navigate('/admin/dashboard');
+        navigate('/admindashboard');
       } else if (formData.role === 'STAFF') {
-        navigate('/staff/dashboard');
+        navigate('/staffmain');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred');
@@ -90,12 +90,12 @@ export default function SignIn() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white">Email</label>
+              <label className="text-sm font-medium text-white">Username</label>
               <Input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                value={formData.email}
+                type="name"
+                name="username"
+                placeholder="Enter your username"
+                value={formData.username}
                 onChange={handleChange}
                 required
               />

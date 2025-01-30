@@ -1,278 +1,113 @@
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
-import { Link as Lk } from "react-router-dom";
-import { useMediaQuery } from "@mui/material";
-import { styled, alpha, useTheme } from "@mui/material/styles";
-import AppsOutlinedIcon from "@mui/icons-material/AppsOutlined";
-import InputBase from "@mui/material/InputBase";
-import SearchIcon from "@mui/icons-material/Search";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import XIcon from "@mui/icons-material/X";
+"use client"
 
-function ResponsiveAppBarStaff() {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { Button } from "./ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
+import { 
+  Home, 
+  Hotel, 
+  PlusSquare, 
+  LayoutDashboard, 
+  Users, 
+  LogOut,
+  Menu
+} from "lucide-react"
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
+export default function ResponsiveAppBar() {
+  const [isOpen, setIsOpen] = useState(false)
+  const navigate = useNavigate()
 
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
+  const handleLogOut = () => {
+    localStorage.removeItem('token')
+    navigate('/')
+  }
 
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-
-  const MenuItemWrapper = styled(MenuItem)(({ theme }) => ({
-    "&:hover": {
-      borderBottom: `4px solid black`,
-      transition: "border-bottom 0.3s ease-in-out",
-    },
-  }));
-
-  const Search = styled("div")(({ theme }) => ({
-    position: "relative",
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    "&:hover": {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: theme.spacing(1),
-      width: isSmallScreen ? "100%" : "auto",
-    },
-  }));
-
-  const SearchIconWrapper = styled("div")(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  }));
-
-  const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: "inherit",
-    width: "100%",
-    "& .MuiInputBase-input": {
-      padding: theme.spacing(1, 1, 1, 0),
-      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-      transition: theme.transitions.create("width"),
-      [theme.breakpoints.up("sm")]: {
-        width: isSmallScreen ? "100%" : "12ch",
-        "&:focus": {
-          width: "20ch",
-        },
-      },
-    },
-  }));
+  const navItems = [
+    { name: "Home", icon: Home, action: () => navigate('/AdminDashboard') },
+    { name: "Rooms", icon: Hotel, action: () => navigate('/rooms') },
+    { name: "Add Room", icon: PlusSquare, action: () => navigate('/add-room') },
+    { name: "Dashboard Stats", icon: LayoutDashboard, action: () => navigate('/dashboardstats') },
+    { name: "Employees", icon: Users, action: () => navigate('/employees') },
+  ]
 
   return (
-    <AppBar
-      sx={{ position: "sticky", backgroundColor: "white", color: "black" }}
-    >
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".1rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            CheckIn
-          </Typography>
-
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
+    <nav className="fixed w-full z-50 bg-gray-900 bg-opacity-90 backdrop-blur-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center">
+            <button 
+              onClick={() => navigate('/staffmain')}
+              className="text-white text-2xl font-bold hover:opacity-80 transition-opacity"
             >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
-            >
-              {/* Add your menu items here */}
-            </Menu>
-          </Box>
-
-          {/* <MenuItem key="Product" onClick={handleCloseNavMenu}>
-            <Typography textAlign="center">
-              <Button>Product</Button>
-            </Typography>
-          </MenuItem> */}
-
-          <MenuItemWrapper key="Product" onClick={handleCloseNavMenu}>
-            <Typography textAlign="center">
-              <Button>
-                <Lk to="/StaffMain" style={{ textDecoration: "none", color: "black" }}>
-                  Home
-                </Lk>
-              </Button>
-            </Typography>
-          </MenuItemWrapper>
-
-          {/* <MenuItem key="Pricing" onClick={handleCloseNavMenu}>
-            <Typography textAlign="center">
-              <Button>Pricing</Button>
-            </Typography>
-          </MenuItem> */}
-          {/* <MenuItem key='Blog' onClick={handleCloseNavMenu}>
-            <Typography textAlign="center">
-              <Button>Blog</Button>
-            </Typography>
-          </MenuItem> */}
-          <MenuItemWrapper>
-            <Typography>
-              <Button>
-                <AppsOutlinedIcon style={{ color: "black" }} />
-              </Button>
-            </Typography>
-          </MenuItemWrapper>
-
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ "aria-label": "search", color: "black" }}
-            />
-          </Search>
-
-          {/* <MenuItem>
-            <Typography>
-              <Button>
-                <NotificationsOutlinedIcon style={{color:'black'}}/>
-              </Button>
-            </Typography>
-          </MenuItem> */}
-          {/* <MenuItem>
-            <Typography>
-              <Button>
-                <PersonAddAltOutlinedIcon style={{color:'black'}}/>
-              </Button>
-            </Typography>
-          </MenuItem> */}
-          <div style={{ flexGrow: 1 }} />
-          <div
-            style={{
-              display: "flex",
-              flexDirection: isSmallScreen ? "column" : "row",
-              justifyContent: "flex-end",
-            }}
-          >
-            <MenuItemWrapper>
-              <Typography>
-                <Button>
-                  <InstagramIcon style={{ color: "black" }} />
-                </Button>
-              </Typography>
-            </MenuItemWrapper>
-            <MenuItemWrapper>
-              <Typography>
-                <Button>
-                  <XIcon style={{ color: "black" }} />
-                </Button>
-              </Typography>
-            </MenuItemWrapper>
-
-            <Box sx={{ flexGrow: 0 }}>
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                </IconButton>
-              </Tooltip>
-              <Menu
-                sx={{ mt: "45px" }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                <MenuItem key="Profile" onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">
-                    Profile
-                    </Typography>
-                </MenuItem>
-                <MenuItem key="Account" onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">Account</Typography>
-                </MenuItem>
-                <MenuItem key="LogOut" onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center" >
-                    <Lk to="/" style={{color:'black',textDecoration:'none'}}>LogOut</Lk>
-                  </Typography>
-                </MenuItem>
-              </Menu>
-            </Box>
+              CheckIn
+            </button>
           </div>
-        </Toolbar>
-      </Container>
-    </AppBar>
-  );
-}
 
-export default ResponsiveAppBarStaff;
+          {/* Desktop Navigation */}
+          <div className="hidden md:block">
+            <div className="flex items-center space-x-4">
+              {navItems.map((item) => (
+                <Button
+                  key={item.name}
+                  onClick={item.action}
+                  variant="ghost"
+                  className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 gap-2"
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.name}
+                </Button>
+              ))}
+              <Button
+                onClick={handleLogOut}
+                variant="ghost"
+                className="text-red-300 hover:bg-gray-700 hover:text-red-500 px-3 py-2 gap-2"
+              >
+                <LogOut className="h-5 w-5" />
+                Log Out
+              </Button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden">
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6 text-white" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-gray-800">
+                <nav className="flex flex-col gap-2 mt-8">
+                  {navItems.map((item) => (
+                    <Button
+                      key={item.name}
+                      onClick={() => {
+                        item.action()
+                        setIsOpen(false)
+                      }}
+                      variant="ghost"
+                      className="w-full justify-start text-gray-300 hover:bg-gray-700 hover:text-white gap-3 py-6"
+                    >
+                      <item.icon className="h-6 w-6" />
+                      <span className="text-lg">{item.name}</span>
+                    </Button>
+                  ))}
+                  <Button
+                    onClick={handleLogOut}
+                    variant="ghost"
+                    className="w-full justify-start text-red-300 hover:bg-gray-700 hover:text-red-500 gap-3 py-6"
+                  >
+                    <LogOut className="h-6 w-6" />
+                    <span className="text-lg">Log Out</span>
+                  </Button>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </div>
+    </nav>
+  )
+}

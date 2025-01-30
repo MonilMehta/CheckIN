@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Typography, Button, Container, Box, Grid, Fade } from '@mui/material';
-import ResponsiveAppBarStaff from './StaffNavbar';
+import ResponsiveAppBar from './StaffNavbar';
 import Modal from 'react-modal';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
@@ -106,7 +106,7 @@ const StaffDashboard = () => {
   return (
     <Fade in timeout={800}>
       <div>
-        <ResponsiveAppBarStaff />
+        <ResponsiveAppBar />
         <Container component="main" maxWidth="xs">
           <Box
             sx={{

@@ -21,7 +21,7 @@ export default function Navigation() {
   const handleSignup = () => navigate('/signup')
 
   return (
-    <nav className="fixed w-full z-50 bg-black bg-opacity-90 backdrop-blur-sm">
+    <nav className="fixed w-full z-50 bg-gray-900 bg-opacity-90 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -42,9 +42,8 @@ export default function Navigation() {
               ))}
               <div className="flex items-center space-x-2 ml-4">
                 <Button 
-                  variant="outline" 
                   size="sm" 
-                  className="text-white hover:bg-gray-700"
+                  className="text-white bg-gray-500 hover:bg-gray-700 hover:text-white"
                   onClick={handleLogin}
                 >
                   <LogIn className="mr-2 h-4 w-4" /> Log In
