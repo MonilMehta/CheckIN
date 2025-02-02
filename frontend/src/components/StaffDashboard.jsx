@@ -1,274 +1,195 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Typography, Button, Container, Box, Grid, Fade } from '@mui/material';
-import ResponsiveAppBar from './StaffNavbar';
-import Modal from 'react-modal';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import SendIcon from '@mui/icons-material/Send';
-import Footer from './Footer';
+import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Upload, X, Camera, Send, Loader2 } from "lucide-react";
 import { useAuth } from '../AuthContext';
 import axios from 'axios';
 
 const StaffDashboard = () => {
   const location = useLocation();
-  const {  roomNumber } = location.state || {};
-
+  const { roomNumber } = location.state || {};
   const [filesCleanliness, setFilesCleanliness] = useState([]);
   const [filesInventory, setFilesInventory] = useState([]);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
-  const [submittedData, setSubmittedData] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+  const { token } = useAuth();
 
-  const handleFileChangeCleanliness = (event) => {
+  const handleFileChange = (event, setFiles, currentFiles) => {
     const uploadedFiles = Array.from(event.target.files);
-    setFilesCleanliness([...filesCleanliness, ...uploadedFiles]);
+    const validFiles = uploadedFiles.filter(file => file.type.startsWith('image/'));
+    setFiles([...currentFiles, ...validFiles]);
   };
 
-  const handleFileChangeInventory = (event) => {
-    const uploadedFiles = Array.from(event.target.files);
-    setFilesInventory([...filesInventory, ...uploadedFiles]);
-  };
-
-  const handleRemoveImageCleanliness = (index) => {
-    const updatedFiles = [...filesCleanliness];
+  const handleRemoveImage = (index, setFiles, currentFiles) => {
+    const updatedFiles = [...currentFiles];
     updatedFiles.splice(index, 1);
-    setFilesCleanliness(updatedFiles);
+    setFiles(updatedFiles);
   };
-
-  const handleRemoveImageInventory = (index) => {
-    const updatedFiles = [...filesInventory];
-    updatedFiles.splice(index, 1);
-    setFilesInventory(updatedFiles);
-  };
-  const {token}=useAuth();
-  console.log('Token : ' + token)
 
   const handleSubmit = async () => {
-    
-    const cleanlinessSubmissionData = {
-      type: 'Cleanliness Check',
-      time: new Date().toLocaleString(),
-      roomNumber,
-      images: filesCleanliness,
-    };
-  
-    const inventorySubmissionData = {
-      type: 'Inventory Check',
-      time: new Date().toLocaleString(),
-      roomNumber,
-      images: filesInventory,
-    };
-  
-    // API endpoints
-    const cleanlinessEndpoint = 'http://127.0.0.1:8000/api/createroom/';
-    const inventoryEndpoint = 'http://127.0.0.1:8000/api/inventory-check/';
-  
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
     try {
-      // Send cleanliness data
+      // Cleanliness submission
       const cleanlinessFormData = new FormData();
       cleanlinessFormData.append('room_number', roomNumber);
-      cleanlinessSubmissionData.images.forEach((file) => {
+      filesCleanliness.forEach((file) => {
         cleanlinessFormData.append('room_image', file);
       });
-      const cleanlinessResponse = await axios.post(cleanlinessEndpoint, cleanlinessFormData, {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
+
+      await axios.post('http://127.0.0.1:8000/api/createroom/', cleanlinessFormData, {
+        headers: { Authorization: `Token ${token}` },
       });
-      console.log('Cleanliness Response:', cleanlinessResponse);
-  
-      // Send inventory data
-      const inventoryResponses = await Promise.all(
-        inventorySubmissionData.images.map(async (file) => {
+
+      // Inventory submission
+      await Promise.all(
+        filesInventory.map(async (file) => {
           const inventoryFormData = new FormData();
           inventoryFormData.append('room_number', roomNumber);
           inventoryFormData.append('image', file);
-          return axios.post(inventoryEndpoint, inventoryFormData, {
-            headers: {
-              Authorization: `Token ${token}`,
-            },
+          return axios.post('http://127.0.0.1:8000/api/inventory-check/', inventoryFormData, {
+            headers: { Authorization: `Token ${token}` },
           });
         })
       );
-      console.log('Inventory Responses:', inventoryResponses);
-  
-      // Reset form after successful submission
+
       setFilesCleanliness([]);
       setFilesInventory([]);
-      const cleanlinessData = await cleanlinessResponse.json();
-      // For inventory, we are directly storing the data in the database, so no need to parse the response
-      setSubmittedData([cleanlinessData, ...submittedData]);
+      setSubmitStatus('success');
     } catch (error) {
       console.error('Error submitting data:', error);
-      // Handle error as needed
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  return (
-    <Fade in timeout={800}>
-      <div>
-        <ResponsiveAppBar />
-        <Container component="main" maxWidth="xs">
-          <Box
-            sx={{
-              marginTop: 8,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <Typography variant="h3" color="textPrimary" gutterBottom>
-              Staff Dashboard
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              Room Number: {roomNumber}
-            </Typography>
-
-            {/* Cleanliness Check */}
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={6}>
-                <Typography variant="body1" color="textSecondary">
-                  Cleanliness Check
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Button
-                  component="label"
-                  role={undefined}
-                  variant="contained"
-                  tabIndex={-1}
-                  startIcon={<CloudUploadIcon />}
-                >
-                  Upload File
-                  <input
-                    type="file"
-                    multiple
-                    onChange={handleFileChangeCleanliness}
-                    style={{ display: 'none' }}
-                  />
-                </Button>
-              </Grid>
-            </Grid>
-
-            {filesCleanliness.map((file, index) => (
-              <div
-                key={index}
-                style={{
-                  width: '80%',
-                  height: 'auto',
-                  marginTop: '20px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-              >
-                {file.type && file.type.startsWith('image/') && (
-                  <img
-                    src={URL.createObjectURL(file)}
-                    alt={`Selected Image ${index + 1}`}
-                    style={{ width: '100%', height: 'auto', marginBottom: '5px' }}
-                    onClick={() => openModal(index)}
-                  />
-                )}
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  size="small"
-                  onClick={() => handleRemoveImageCleanliness(index)}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    padding: '2px',
-                    borderRadius: '50%',
-                  }}
-                >
-                  &#10005;
-                </Button>
-              </div>
-            ))}
-
-            {/* Inventory Check */}
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={6}>
-                <Typography variant="body1" color="textSecondary">
-                  Inventory Check
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Button
-                  component="label"
-                  role={undefined}
-                  variant="contained"
-                  tabIndex={-1}
-                  startIcon={<CloudUploadIcon />}
-                >
-                  Upload File
-                  <input
-                    type="file"
-                    multiple
-                    onChange={handleFileChangeInventory}
-                    style={{ display: 'none' }}
-                  />
-                </Button>
-              </Grid>
-            </Grid>
-
-            {filesInventory.map((file, index) => (
-              <div
-                key={index}
-                style={{
-                  width: '80%',
-                  height: 'auto',
-                  marginTop: '10px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-              >
-                {file.type && file.type.startsWith('image/') && (
-                  <img
-                    src={URL.createObjectURL(file)}
-                    alt={`Selected Image ${index + 1}`}
-                    style={{ width: '100%', height: 'auto', marginBottom: '5px' }}
-                    onClick={() => openModal(index)}
-                  />
-                )}
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  size="small"
-                  onClick={() => handleRemoveImageInventory(index)}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    padding: '2px',
-                    borderRadius: '50%',
-                    marginTop:'40px'
-                  }}
-                >
-                  &#10005;
-                </Button>
-              </div>
-            ))}
-
-            {/* Submit Button */}
-            <Button
-              variant="contained"
-              color="primary"
-              endIcon={<SendIcon />}
-              onClick={handleSubmit}
-              sx={{
-                mt: 3,
-                color: 'white',
-                '&:hover': { backgroundColor: '#1976D2' },
-              }}
-            >
-              Submit
-            </Button>
-          </Box>
-        </Container>
-        <Footer />
+  const ImagePreview = ({ file, onRemove, index }) => (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      className="group relative rounded-lg overflow-hidden"
+    >
+      <img
+        src={URL.createObjectURL(file)}
+        alt={`Preview ${index + 1}`}
+        className="w-full h-48 object-cover rounded-lg"
+      />
+      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={onRemove}
+          className="absolute top-2 right-2 p-1 bg-white rounded-full hover:bg-red-100 transition-colors"
+        >
+          <X className="h-4 w-4 text-red-600" />
+        </button>
       </div>
-    </Fade>
+    </motion.div>
+  );
+
+  const UploadSection = ({ title, files, setFiles, currentFiles }) => (
+    <Card className="w-full mb-6">
+      <CardContent className="pt-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          <Button
+            variant="outline"
+            className="relative overflow-hidden"
+            onClick={() => document.getElementById(`${title}-upload`).click()}
+          >
+            <input
+              id={`${title}-upload`}
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleFileChange(e, setFiles, currentFiles)}
+            />
+            <Upload className="h-4 w-4 mr-2" />
+            Upload Images
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+          <AnimatePresence>
+            {currentFiles.map((file, index) => (
+              <ImagePreview
+                key={`${file.name}-${index}`}
+                file={file}
+                index={index}
+                onRemove={() => handleRemoveImage(index, setFiles, currentFiles)}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-12">
+      <div className="max-w-4xl mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-3xl font-bold text-gray-900">Room Inspection</h1>
+          <p className="text-gray-600 mt-2">Room Number: {roomNumber}</p>
+        </motion.div>
+
+        <UploadSection
+          title="Cleanliness Check"
+          files={setFilesCleanliness}
+          currentFiles={filesCleanliness}
+          setFiles={setFilesCleanliness}
+        />
+
+        <UploadSection
+          title="Inventory Check"
+          files={setFilesInventory}
+          currentFiles={filesInventory}
+          setFiles={setFilesInventory}
+        />
+
+        {submitStatus && (
+          <Alert className={submitStatus === 'success' ? 'bg-green-50' : 'bg-red-50'}>
+            <AlertDescription>
+              {submitStatus === 'success' 
+                ? 'Images uploaded successfully!' 
+                : 'Error uploading images. Please try again.'}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <motion.div className="mt-8 flex justify-center">
+          <Button
+            size="lg"
+            onClick={handleSubmit}
+            disabled={isSubmitting || (!filesCleanliness.length && !filesInventory.length)}
+            className={`w-full max-w-xs ${
+              isSubmitting ? 'opacity-80' : ''
+            }`}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Send className="mr-2 h-4 w-4" />
+                Submit Inspection
+              </>
+            )}
+          </Button>
+        </motion.div>
+      </div>
+    </div>
   );
 };
 
